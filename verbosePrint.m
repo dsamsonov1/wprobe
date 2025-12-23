@@ -5,9 +5,8 @@ function verbosePrint(a_message, a_thresholdLevel, a_systemVerboseLevel, varargi
             if ~isempty(varargin)
                 fprintf(a_message, varargin{:});
             else
-                fprintf('%s', a_message);
+                fprintf(a_message);
             end
-            fprintf('\n');
         catch ME
             error('verbosePrint:formatError', '');
         end

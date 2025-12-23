@@ -1,38 +1,37 @@
-function [current, r0] = readCurrent(m, didoId, adcId, rm, waitTime)
+function [current, r0] = readCurrent(a_cf)
 
-    cr = getCurrentRange(m, didoId);
-    cri = find(cr);
-    ovl = checkOvl(m, didoId);
+    rm = [10e-9 100e-9 1e-6 10e-6 100e-6 1e-3]; % Множители для пределов измерения
+
+    cr = getCurrentRange(a_cf);
+
+    ovl = checkOvl(a_cf);
     success = true;
     while ovl && success
-        [success, cr] = selectRange(1, cri, cr);
-        cri = find(cr);
+        [success, cr] = selectRange(1, cr);
         if success
-            setCurrentRange(cr, m, didoId, waitTime);
-            ovl = checkOvl(m, didoId);
+            setCurrentRange(cr, a_cf);
         end
+        ovl = checkOvl(a_cf);
     end
 
     if ~success && ovl
         current = NaN;
-        r0 = cri;
+        r0 = find(cr);
         return;
     end
 
-    cc = getADCCurrent(m, adcId);
+    cc = getADCCurrent(a_cf, 10);
 
-    if cc <= 100
-        success = true;
-        while cc <= 100 && success
-            [success, cr] = selectRange(0, cri, cr);
-            cri = find(cr);
-            if success
-                setCurrentRange(cr, m, didoId, waitTime);
-            end
-            cc = getADCCurrent(m, adcId);
+    success = true;
+    while cc <= 0.9995 && success
+        [success, cr] = selectRange(0, cr);
+        if success
+            setCurrentRange(cr, a_cf);
         end
+        cc = getADCCurrent(a_cf, 10);
     end
-    csign = getCurrentSign(m, didoId);
-    current = bsign(csign)*cc/1000*rm(cri);
-    r0 = cri;
+
+    csign = getCurrentSign(a_cf);
+    r0 = find(cr);
+    current = bsign(csign)*cc/10*rm(r0);
 end

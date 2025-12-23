@@ -2,10 +2,9 @@ function kbd2file(filename, prompt_text, append_mode)
     % KEYBOARD_INPUT_TO_FILE Читает ввод с клавиатуры и записывает в файл
     %
     % Синтаксис:
-    %   keyboard_input_to_file(filename)
-    %   keyboard_input_to_file(filename, prompt_text)
-    %   keyboard_nn
-    %  ddddinput_to_file(filename, prompt_text, append_mode)
+    %   kbd2file(filename)
+    %   kbd2file(filename, prompt_text)
+    %   kbd2file(filename, prompt_text, append_mode)
     %
     % Входные параметры:
     %   filename - имя файла для записи (обязательный)
@@ -14,7 +13,7 @@ function kbd2file(filename, prompt_text, append_mode)
     %                 true - добавить в конец файла (по умолчанию)
     %                 false - перезаписать файл
     
-    % Проверка количества dвходных аргументов
+    % Проверка количества входных аргументов
     if nargin < 1
         error('Необходимо указать имя файла');
     end
@@ -45,7 +44,7 @@ function kbd2file(filename, prompt_text, append_mode)
     
     % Открываем файл
     try
-        fid = fopen(filename, file_mode, 'n', 'UTF-8');
+        fid = fopen(filename, file_mode, 'n', 'windows-1251');
         if fid == -1
             error('Не удалось открыть файл: %s', filename);
         end
