@@ -26,10 +26,14 @@ grid on
 yyaxis right;
 plot(vv, rr, '.');
 ylim([0 7]);
+yticks([0 1 2 3 4 5 6 7]);
 yticklabels({'', '1: 10 нА', '2: 100 нА', '3: 1 мкА', '4: 10 мкА', '5: 100 мкА', '6: 1 мА', ''});
 ylabel('№ предела');
+set(gca, 'FontName', 'Arial');
 
 fprintf('Rext: Meas=%.0f [Ohm] - вычисленное по ВАХ\n', 1/f1.p1);
 if isfield(cf, 'Rext')
     fprintf('Rext: Set =%.0f [Ohm] - заданное снаружи эталонное значение\nОтклонение Rext: %.4f%%\n', cf.Rext, 1/f1.p1/cf.Rext/100);
 end
+
+exportgraphics(gcf, sprintf('%s/plotchar.pdf', resFolder));
