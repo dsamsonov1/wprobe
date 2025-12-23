@@ -1,4 +1,6 @@
 % Рисуем картинку ВАХ по данным АЦП тока и напряжения
+% По ВАХ, снятой на эталонном резисторе, можно оценить качество
+% измерителей
 
 scanNumber = 24; % Номер набора результатов для отображения
 basePath = 'out/';
@@ -7,8 +9,9 @@ basePath = 'out/';
 load (sprintf('%s/scandata.mat', resFolder));
 
 f1 = fit(double(vv), double(ii),  'poly1');
-
 ifit = feval(f1, vv);
+
+fprintf('Iadc(Uadc) = %.4e*Uadc%+.4e\n', f1.p1, f1.p2);
 
 %subplot(2, 2, 1);
 yyaxis left;
@@ -26,8 +29,7 @@ ylim([0 7]);
 yticklabels({'', '1: 10 нА', '2: 100 нА', '3: 1 мкА', '4: 10 мкА', '5: 100 мкА', '6: 1 мА', ''});
 ylabel('№ предела');
 
-fprintf('Rext: Calc=%.0f [Ohm]\n', 1/f1.p1);
+fprintf('Rext: Meas=%.0f [Ohm] - вычисленное по ВАХ\n', 1/f1.p1);
 if isfield(cf, 'Rext')
-    fprintf('Rext: Meas=%.0f [Ohm]; Tol = %.4f%%\n\n', cf.Rext, 1/f1.p1/cf.Rext/100);
+    fprintf('Rext: Set =%.0f [Ohm] - заданное снаружи эталонное значение\nОтклонение Rext: %.4f%%\n', cf.Rext, 1/f1.p1/cf.Rext/100);
 end
-

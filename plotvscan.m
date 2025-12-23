@@ -1,6 +1,8 @@
 % Рисуем картинку для скана с внешним вольтметром.
+% По скану, снятому на эталонном резисторе, можно оценить качество
+% измерителей
 
-scanNumber = 16; % Номер набора результатов для отображения
+scanNumber = 14; % Номер набора результатов для отображения
 basePath = 'out/';
 
 [resFolder,~] = findOutputFolder(basePath, 'scan', 'vv', scanNumber);
@@ -11,8 +13,9 @@ if isempty(ve)
 end
 
 f1 = fit(double(ve(:,1)), double(vv),  'poly1');
-
 vfit = feval(f1, ve(:,1));
+
+fprintf('Uadc(Uext) = %.4f*Uext%+.4f\n', f1.p1, f1.p2);
 
 subplot(2, 3, 1);
 plot(ve(:,1), vv, '.-', ve(:,1), vv, '-r');
@@ -27,6 +30,11 @@ plot(ve(:,1), ve(:,1)-vv, '.-');
 xlabel('U_{ext} [V]');
 ylabel('U_{ext}-U_{adc} [V]');
 grid on
+
+f2 = fit(double(vs), double(vv),  'poly1');
+vfit = feval(f2, vs);
+
+fprintf('Uadc(Uset) = %.4f*Uset%+.4f\n', f2.p1, f2.p2);
 
 subplot(2, 3, 2);
 plot(vs, vv, '.-', vs, vs, '-');

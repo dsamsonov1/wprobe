@@ -1,4 +1,6 @@
 % Рисуем картинку для скана с внешним амперметром.
+% По скану, снятому на эталонном резисторе, можно оценить качество
+% измерителей
 
 scanNumber = 24; % Номер набора результатов для отображения
 basePath = 'out/';
@@ -13,7 +15,7 @@ end
 f1 = fit(double(ie(:,1)), double(ii),  'poly1');
 ifit = feval(f1, ie(:,1));
 
-fprintf('Iadc(Iext) = %.3e*Iext + %.3e\n', f1.p1, f1.p2);
+fprintf('Iadc(Iext) = %.4f*Iext + %.3e\n', f1.p1, f1.p2);
 
 subplot(2, 2, 1);
 yyaxis left;

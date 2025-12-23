@@ -3,18 +3,19 @@ clear cf;
 cf.extV = false;             % Измеряем ли напряжение внешним вольтметром?
 cf.extI = false;             % Измеряем ли ток внешним амперметром?
 cf.manV = false;            % Записываем ли напряжение индикатора на панели (ручной ввод)?
-cf.acquireCurrent = true;   % Измеряем ли ток?
+cf.acquireCurrent = true;   % Измеряем ли ток по АЦП?
+cf.acquireVoltage = true;   % Измеряем ли напряжение по АЦП?
 %cf.Rext = 9991800;           % Внешнее сопротивление [Ом]
 cf.Rext = 1000000000;           % Внешнее сопротивление [Ом]
 
 cf.verboseLevel = 2;        % Уровень занудства сообщений в консоли: 0, 1, 2
 
-cf.vmin = -500;
-cf.vmax = 500;
-cf.vstep = 20;
+cf.vmin = -500;             % Начало диапазона сканирования напряжения [В]
+cf.vmax = 500;              % Конец диапазона сканирования напряжения [В]
+cf.vstep = 20;              % Шаг сканирования [В]
 
-cf.ptime = 0.7;             % Время ожидания после установки напряжения смещения
-cf.waitTime = 1;          % Время ожидания после коммутации реле (пределы, HV)
+cf.ptime = 0.7;             % Время ожидания после установки напряжения смещения [с]
+cf.waitTime = 1;          % Время ожидания после коммутации реле (пределы, HV) [с]
 cf.samplesCount = 5;    % Размер выборки для усреднения по внешнему вольтметру/амперметру
 
 vrange = cf.vmin:cf.vstep:cf.vmax;
@@ -67,13 +68,16 @@ setHVState(1, cf);
 
 for i = vrange
     tic;
-    cf.mbcount = 0; % Счетчик modbus запросов
+%    cf.mbcount = 0; % Счетчик modbus запросов
     verbosePrint("-- Voltage step %d/%d: %d [V].\n", 0, cf.verboseLevel, find(vrange == i), numel(vrange), i);
+
     setVoltage(i, cf);
     vs = [vs; i];
 
-    v0 = getADCVoltage(cf, 5);
-    vv = [vv; v0];
+    if cf.acquireVoltage
+        v0 = getADCVoltage(cf, 5);
+        vv = [vv; v0];
+    end
     
     if cf.manV
         vi0 = input(sprintf('Input indicated voltage (Vs=%d): ', i));
