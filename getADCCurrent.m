@@ -1,7 +1,7 @@
 function i0 = getADCCurrent(a_cf, nSamples)
 
-    tic
-    verbosePrint('Current ADC requested: %d samples.\n', 2, a_cf.verboseLevel, nSamples);
+    tic;
+    verbosePrint('Current ADC requested: %d samples.\n', 2, a_cf, nSamples);
 
     samples = zeros(1, nSamples, 'single');
 
@@ -16,9 +16,8 @@ function i0 = getADCCurrent(a_cf, nSamples)
 
         i00 = single(rawValue)/10000;
         samples(i) = i00;
-        verbosePrint('  Current sample (%d/%d): r1=%04X, r2=%04X, converted: %08X (%.2f).\n', 2, a_cf.verboseLevel, i, nSamples, reg16(1), reg16(2), rawValue, i00);
+        verbosePrint('  Current sample (%d/%d): r1=%04X, r2=%04X, converted: %08X (%.2f).\n', 2, a_cf, i, nSamples, reg16(1), reg16(2), rawValue, i00);
         
-
         % Небольшая задержка между измерениями (если нужно)
         if i < nSamples && nSamples > 1
             pause(0.001); % 1 мс задержка
@@ -42,5 +41,5 @@ function i0 = getADCCurrent(a_cf, nSamples)
     end
 
     elapsed = toc;
-    verbosePrint('  Current raw ADC: %.2f. Time: %.2f [s].\n', 2, a_cf.verboseLevel, i0, elapsed);
+    verbosePrint('  Current raw ADC: %.2f. Time: %.2f [s].\n', 1, a_cf, i0, elapsed);
 end

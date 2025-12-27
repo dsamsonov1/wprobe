@@ -5,5 +5,5 @@ function setVoltage(a_v, a_cf)
     code = a_v+500;
     write(a_cf.m, 'holdingregs', 2049, code, a_cf.dacId, 'uint16');
     pause(a_cf.ptime);
-    verbosePrint('Voltage set pause %.2f [s].\n', 2, a_cf.verboseLevel, a_cf.waitTime);
+    verbosePrint('Voltage set pause %.2f [s].\n', 2, a_cf, a_cf.waitTime);
 end

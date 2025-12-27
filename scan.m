@@ -8,19 +8,22 @@ cf.acquireVoltage = true;   % Измеряем ли напряжение по А
 %cf.Rext = 9991800;           % Внешнее сопротивление [Ом]
 cf.Rext = 1000000000;           % Внешнее сопротивление [Ом]
 
-cf.verboseLevel = 2;        % Уровень занудства сообщений в консоли: 0, 1, 2
+cf.verboseLevel = 1;        % Уровень занудства сообщений в консоли: 0, 1, 2
 
-cf.vmin = -500;             % Начало диапазона сканирования напряжения [В]
-cf.vmax = 500;              % Конец диапазона сканирования напряжения [В]
-cf.vstep = 20;              % Шаг сканирования [В]
+%cf.vmin = -500;             % Начало диапазона сканирования напряжения [В]
+%cf.vmax = 500;              % Конец диапазона сканирования напряжения [В]
+cf.vmin = -100;             % Начало диапазона сканирования напряжения [В]
+cf.vmax = 100;              % Конец диапазона сканирования напряжения [В]
+
+cf.vstep = 5;              % Шаг сканирования [В]
 
 cf.ptime = 0.7;             % Время ожидания после установки напряжения смещения [с]
-cf.waitTime = 1;          % Время ожидания после коммутации реле (пределы, HV) [с]
-cf.samplesCount = 5;    % Размер выборки для усреднения по внешнему вольтметру/амперметру
+cf.waitTime = 1;            % Время ожидания после коммутации реле (пределы, HV) [с]
+cf.samplesCount = 5;        % Размер выборки для усреднения по внешнему вольтметру/амперметру
 
-vrange = cf.vmin:cf.vstep:cf.vmax;
+%vrange = cf.vmin:cf.vstep:cf.vmax;
 
-%vrange = [-490:1:-251 -250:10:-50 50:10:250 251:1:490];
+vrange = [-60:3:-41 -40:1:40 40:3:60];
 
 %cf.adcId = 51;
 cf.adcId = 1;
@@ -29,13 +32,22 @@ cf.dacId = 50;
 cf.ADC_voltage_reg = 3;
 cf.ADC_current_reg = 1;
 
-cf.vo_address = '172.16.19.62'; % Адрес внешнего вольтметра
-cf.mbport = 'COM2'; % Адрес ВАХ ящика
+cf.vo_address = '172.16.19.62';     % Адрес внешнего вольтметра
+cf.mb_address = '172.16.19.112';    % Адрес ВАХ ящика в случае Modbus TCP
+
+cf.mbport = 'COM10'; % Адрес ВАХ ящика в случае COM порта
 
 %cf.mbcount = 0; % Счетчик modbus запросов
 
 cf.m = modbus('serialrtu', cf.mbport);
-cf.m.Timeout = 3;
+%cf.m = modbus('tcpip', cf.mb_address);
+cf.m.Timeout = 5;
+
+[~, path] = createOutputFolder('out/', 'scan', 'vv');
+
+cf.verboseLog = true;
+cf.verboseLogFile = sprintf('%s/scan.log', path);
+
 
 if ~getMbState(cf)
     error('Device must be in MODBUS mode.');
@@ -67,9 +79,9 @@ setVoltage(0, cf)
 setHVState(1, cf);
 
 for i = vrange
-    tic;
+    tStart = tic;
 %    cf.mbcount = 0; % Счетчик modbus запросов
-    verbosePrint("-- Voltage step %d/%d: %d [V].\n", 0, cf.verboseLevel, find(vrange == i), numel(vrange), i);
+    verbosePrint("-- Voltage step %d/%d: %d [V].\n", 0, cf, find(vrange == i), numel(vrange), i);
 
     setVoltage(i, cf);
     vs = [vs; i];
@@ -102,9 +114,10 @@ for i = vrange
         it = [it; it0];
     end
     
-    elapsed = toc;
-    verbosePrint("   Modbus requests: %d.\n", 2, cf.verboseLevel, cf.mbcount);
-    verbosePrint("-- Voltage step %d [V] finished: V=%.2f [V]; I=%.2e [A]. Time: %.2f.\n", 1, cf.verboseLevel, i, v0, i0, elapsed);
+    elapsed = toc(tStart);
+    tt = [tt elapsed];
+%    verbosePrint("   Modbus requests: %d.\n", 2, cf.verboseLevel, cf.mbcount);
+    verbosePrint("-- Voltage step %d [V] finished: V=%.2f [V]; I=%.2e [A]. Time: %.2f [s].\n", 1, cf, i, v0, i0, elapsed);
 end
 
 setVoltage(0, cf);
@@ -118,8 +131,7 @@ if isfield(cf, 'vo')
     cf = rmfield(cf, 'vo');
 end
 
-[~, path] = createOutputFolder('out/', 'scan', 'vv');
-save(sprintf('%s/scandata.mat', path), 'vi', 've', 'vv', 'vs', 'vt', 'ie', 'it', 'cf', 'ii', 'rr');
+save(sprintf('%s/scandata.mat', path), 'vi', 've', 'vv', 'vs', 'vt', 'ie', 'it', 'cf', 'ii', 'rr', 'tt');
 kbd2file(sprintf('%s/readme.txt', path), 'Enter description: ', true);
 
 disp('All done. Take a beer!');

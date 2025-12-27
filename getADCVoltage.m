@@ -13,7 +13,7 @@ function v0 = getADCVoltage(a_cf, nSamples)
 
         v00 = single(rawValue)*10/1000-500; % тут где-то косяк с переполнением
 
-        verbosePrint('  Voltage sample (%d/%d): r1=0x%04X, r2=0x%04X, converted: 0x%08X (%.2f).\n', 2, a_cf.verboseLevel, i, nSamples, reg16(1), reg16(2), rawValue, v00);
+        verbosePrint('  Voltage sample (%d/%d): r1=0x%04X, r2=0x%04X, converted: 0x%08X (%.2f).\n', 2, a_cf, i, nSamples, reg16(1), reg16(2), rawValue, v00);
         
         samples(i) = v00;
 
@@ -40,5 +40,5 @@ function v0 = getADCVoltage(a_cf, nSamples)
     end
 
     elapsed = toc;
-    verbosePrint('  Avg voltage: %.2f. Time: %.2f [s].\n', 2, a_cf.verboseLevel, v0, elapsed);
+    verbosePrint('  Avg voltage: %.2f. Time: %.2f [s].\n', 1, a_cf, v0, elapsed);
 end
