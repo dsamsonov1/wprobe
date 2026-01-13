@@ -1,10 +1,10 @@
 function i0 = getADCCurrent(a_cf, nSamples)
 
-    tic;
     verbosePrint('Current ADC requested: %d samples.\n', 2, a_cf, nSamples);
 
     samples = zeros(1, nSamples, 'single');
 
+    tStart = tic;
     for i = 1:nSamples
         %для 12-битного ацп
         %i0 = read(a_cf.m, 'inputregs', 1, 1, a_cf.adcId, 'uint16');
@@ -19,9 +19,9 @@ function i0 = getADCCurrent(a_cf, nSamples)
         verbosePrint('  Current sample (%d/%d): r1=%04X, r2=%04X, converted: %08X (%.2f).\n', 2, a_cf, i, nSamples, reg16(1), reg16(2), rawValue, i00);
         
         % Небольшая задержка между измерениями (если нужно)
-        if i < nSamples && nSamples > 1
+%        if i < nSamples && nSamples > 1
             pause(0.001); % 1 мс задержка
-        end
+%        end
     end
 
     % Вычисляем среднее значение
@@ -40,6 +40,6 @@ function i0 = getADCCurrent(a_cf, nSamples)
         i0 = samples(1);
     end
 
-    elapsed = toc;
+    elapsed = toc(tStart);
     verbosePrint('  Current raw ADC: %.2f. Time: %.2f [s].\n', 1, a_cf, i0, elapsed);
 end

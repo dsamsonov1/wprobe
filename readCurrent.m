@@ -3,32 +3,36 @@ function [current, r0] = readCurrent(a_cf)
     rm = [10e-9 100e-9 1e-6 10e-6 100e-6 1e-3]; % Множители для пределов измерения
 
     cr = getCurrentRange(a_cf);
-
     ovl = checkOvl(a_cf);
     success = true;
-    while ovl && success
-        [success, cr] = selectRange(1, cr);
-        if success
-            setCurrentRange(cr, a_cf);
+
+    if a_cf.autorange
+        while ovl && success
+            [success, cr] = selectRange(1, cr);
+            if success
+                setCurrentRange(cr, a_cf);
+            end
+            ovl = checkOvl(a_cf);
         end
-        ovl = checkOvl(a_cf);
     end
 
-    if ~success && ovl
+    if (~success || a_cf.autorange) && ovl
         current = NaN;
         r0 = find(cr);
         return;
     end
 
-    cc = getADCCurrent(a_cf, 10);
+    cc = getADCCurrent(a_cf, a_cf.currentSamples);
 
-    success = true;
-    while cc <= 0.9995 && success
-        [success, cr] = selectRange(0, cr);
-        if success
-            setCurrentRange(cr, a_cf);
+    if a_cf.autorange
+        success = true;
+        while cc <= 0.9995 && success
+            [success, cr] = selectRange(0, cr);
+            if success
+                setCurrentRange(cr, a_cf);
+            end
+            cc = getADCCurrent(a_cf, a_cf.currentSamples);
         end
-        cc = getADCCurrent(a_cf, 10);
     end
 
     csign = getCurrentSign(a_cf);

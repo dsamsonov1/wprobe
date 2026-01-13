@@ -10,8 +10,8 @@ function setCurrentRange(a_cr, a_cf)
 
     verbosePrint('Current range set requested.\n', 2, a_cf);
     write(a_cf.m, 'coils', 17, a_cr, a_cf.didoId);
-
     pause(a_cf.waitTime);
+
     verbosePrint('Current range set pause %.2f [s].\n', 2, a_cf, a_cf.waitTime);
     
     cr_check = getCurrentRange(a_cf);

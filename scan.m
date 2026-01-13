@@ -7,23 +7,26 @@ cf.acquireCurrent = true;   % Измеряем ли ток по АЦП?
 cf.acquireVoltage = true;   % Измеряем ли напряжение по АЦП?
 %cf.Rext = 9991800;           % Внешнее сопротивление [Ом]
 cf.Rext = 1000000000;           % Внешнее сопротивление [Ом]
+cf.autorange = false;        % Пробовать ли установить предел по току автоматически?
+cf.currentSamples = 3;
 
-cf.verboseLevel = 1;        % Уровень занудства сообщений в консоли: 0, 1, 2
+cf.verboseLevel = 2;        % Уровень занудства сообщений в консоли: 0, 1, 2
 
 %cf.vmin = -500;             % Начало диапазона сканирования напряжения [В]
 %cf.vmax = 500;              % Конец диапазона сканирования напряжения [В]
-cf.vmin = -100;             % Начало диапазона сканирования напряжения [В]
-cf.vmax = 100;              % Конец диапазона сканирования напряжения [В]
+%cf.vmin = -60;             % Начало диапазона сканирования напряжения [В]
+%cf.vmax = 100;              % Конец диапазона сканирования напряжения [В]
 
-cf.vstep = 5;              % Шаг сканирования [В]
+cf.vstep = 0.1;              % Шаг сканирования [В]
 
 cf.ptime = 0.7;             % Время ожидания после установки напряжения смещения [с]
 cf.waitTime = 1;            % Время ожидания после коммутации реле (пределы, HV) [с]
-cf.samplesCount = 5;        % Размер выборки для усреднения по внешнему вольтметру/амперметру
+cf.samplesCount = 3;        % Размер выборки для усреднения по внешнему вольтметру/амперметру
 
 %vrange = cf.vmin:cf.vstep:cf.vmax;
 
-vrange = [-60:3:-41 -40:1:40 40:3:60];
+vrange = [-150:3:-101 -100:2:40 41:3:100];
+%vrange = -4:1:5;
 
 %cf.adcId = 51;
 cf.adcId = 1;
@@ -39,7 +42,7 @@ cf.mbport = 'COM10'; % Адрес ВАХ ящика в случае COM порт
 
 %cf.mbcount = 0; % Счетчик modbus запросов
 
-cf.m = modbus('serialrtu', cf.mbport);
+cf.m = modbus('serialrtu', cf.mbport, 'BaudRate', 9600);
 %cf.m = modbus('tcpip', cf.mb_address);
 cf.m.Timeout = 5;
 
@@ -78,6 +81,8 @@ setCurrentRange([0 0 0 0 1 0], cf);
 setVoltage(0, cf)
 setHVState(1, cf);
 
+scantimestamp = datetime;
+
 for i = vrange
     tStart = tic;
 %    cf.mbcount = 0; % Счетчик modbus запросов
@@ -87,7 +92,7 @@ for i = vrange
     vs = [vs; i];
 
     if cf.acquireVoltage
-        v0 = getADCVoltage(cf, 5);
+        v0 = getADCVoltage(cf, 3);
         vv = [vv; v0];
     end
     
@@ -120,6 +125,8 @@ for i = vrange
     verbosePrint("-- Voltage step %d [V] finished: V=%.2f [V]; I=%.2e [A]. Time: %.2f [s].\n", 1, cf, i, v0, i0, elapsed);
 end
 
+verbosePrint("Total scan time: %.2f [s] (avg %.1f [s/point]).\n", 1, cf, sum(tt), sum(tt)/numel(vrange));
+
 setVoltage(0, cf);
 setHVState(0, cf);
 setCurrentRange([0 0 0 0 1 0], cf);
@@ -131,7 +138,7 @@ if isfield(cf, 'vo')
     cf = rmfield(cf, 'vo');
 end
 
-save(sprintf('%s/scandata.mat', path), 'vi', 've', 'vv', 'vs', 'vt', 'ie', 'it', 'cf', 'ii', 'rr', 'tt');
+save(sprintf('%s/scandata.mat', path), 'vi', 've', 'vv', 'vs', 'vt', 'ie', 'it', 'cf', 'ii', 'rr', 'tt', 'scantimestamp');
 kbd2file(sprintf('%s/readme.txt', path), 'Enter description: ', true);
 
 disp('All done. Take a beer!');

@@ -2,7 +2,13 @@ function v0 = getADCVoltage(a_cf, nSamples)
     
     samples = zeros(1, nSamples, 'single');
 
+    tStart = tic;
     for i = 1:nSamples
+
+%        t = timer('ExecutionMode', 'fixedRate', ...
+%          'Period', 0.1, ...           % 100 мс
+%          'TimerFcn', @(~,~)readData(mb));
+
         %для 12-битного ацп
         %v0 = read(a_cf.m, 'inputregs', 2, 1, a_cf.adcId, 'uint16')-500;
 
@@ -18,9 +24,9 @@ function v0 = getADCVoltage(a_cf, nSamples)
         samples(i) = v00;
 
         % Небольшая задержка между измерениями (если нужно)
-        if i < nSamples && nSamples > 1
+%        if i < nSamples && nSamples > 1
             pause(0.001); % 1 мс задержка
-        end
+%        end
     end
 
     % Вычисляем среднее значение
@@ -39,6 +45,16 @@ function v0 = getADCVoltage(a_cf, nSamples)
         v0 = samples(1);
     end
 
-    elapsed = toc;
+    elapsed = toc(tStart);
     verbosePrint('  Avg voltage: %.2f. Time: %.2f [s].\n', 1, a_cf, v0, elapsed);
+end
+
+function readData(mb)
+    try
+        data = read(mb, 'holdingregs', 100, 10);
+        % Обработка данных
+    catch ME
+        % Обработка ошибок без задержек
+        fprintf('Ошибка чтения: %s\n', ME.message);
+    end
 end
