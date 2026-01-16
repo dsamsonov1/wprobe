@@ -6,10 +6,11 @@
 %scanNumbers = [56 57 60]; % Номера наборов результатов для отображения
 %scanNumbers = [65 66 67 68 69 70 71 72 73 74 75 76 77 78]; % Номера наборов результатов для отображения
 %dtStart = char(datetime(2025, 12, 29, 11, 00, 0);
+%scanNumbers = [115 116 118 119 120 123 124 125 126 127 128 129 131 132 134 135 136 137 138 139]; % Номера наборов результатов для отображения
 
 basePath = 'out/';
 
-runId = 1;
+runId = 3;
 
 if exist("runId")
     [runFolder,~] = findOutputFolder(basePath, 'run', 'pp', runId);
@@ -18,7 +19,8 @@ if exist("runId")
     dtStart = rundata.timestamp(1);
 end
 
-invertVoltage = true;   % Обратить полярность напряжения
+invertVoltage = false;   % Обратить полярность напряжения
+invertCurrent = true;   % Обратить полярность тока
 
 v = {};
 i = {};
@@ -30,6 +32,10 @@ for j = scanNumbers
     if invertVoltage
         vv = -vv;
     end
+    if invertCurrent
+        ii = -ii;
+    end
+   
     v{end+1} = vv;
     i{end+1} = ii;
 

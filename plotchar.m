@@ -2,13 +2,13 @@
 % По ВАХ, снятой на эталонном резисторе, можно оценить качество
 % измерителей
 
-scanNumber = 106; % Номер набора результатов для отображения
+scanNumber = 118; % Номер набора результатов для отображения
 basePath = 'out/';
 
 fitLinear = false;      % Пробовать ли делать линейную аппроксимацию характеристики 
                         % (интересно при пробных измерениях с подключенным Rext)
-invertCurrent = false;   % Обратить полярность тока
-invertVoltage = true;   % Обратить полярность напряжения
+invertCurrent = true;   % Обратить полярность тока
+invertVoltage = false;   % Обратить полярность напряжения
 
 [resFolder,~] = findOutputFolder(basePath, 'scan', 'vv', scanNumber);
 load (sprintf('%s/scandata.mat', resFolder));
@@ -31,7 +31,7 @@ if fitLinear
     end
 end
 
-subplot(2, 1, 1);
+subplot(4, 1, [1 2 3]);
 yyaxis left;
 if fitLinear
     plot(vv, ii, '.-', vv, ifit, '-r');
@@ -57,5 +57,5 @@ set(gca, 'FontName', 'Arial');
 
 exportgraphics(gcf, sprintf('%s/plotchar.pdf', resFolder));
 
-subplot(2,1,2);
+subplot(4,1,4);
 plot(vv, tt, '-.');
